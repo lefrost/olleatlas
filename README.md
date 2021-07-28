@@ -15,10 +15,10 @@ Powered by:
 
 ## Stable versions
 
-- node.js: 16.4.2
-- dotenv: ^10.0.0
-- express: ^4.17.1
-- mongodb: ^3.6.10 (dependency with version 4.0.0 and higher breaks the code!)
+- node.js: `16.4.2`
+- dotenv: `^10.0.0`
+- express: `^4.17.1`
+- mongodb: `^3.6.10` (dependency with version `4.0.0` or higher breaks the code!)
 
 ## Setup
 
