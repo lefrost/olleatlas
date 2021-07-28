@@ -49,4 +49,4 @@ Note: Anytime when deploying with Heroku CLI, commit main branch but don't push 
 
 ---
 
-🍉 Last updated on July 2021 🍉
+🍉 Last revised on July 2021 🍉
