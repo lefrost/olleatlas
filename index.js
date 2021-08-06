@@ -47,7 +47,7 @@ function get(collectionName, params, options) {
         .db("olleatlas")
         .collection(collectionName)
         .find(params, { collation: { locale: "en", strength: 2 } }) // Case-insensitive MongoDB query - https://stackoverflow.com/a/40914924
-        .toArray(function (err, result) {
+        .toArray(async function (err, result) {
           if (!isEmpty(result)) {
             if (options.single) {
               data = result[0];
@@ -59,10 +59,11 @@ function get(collectionName, params, options) {
           } else {
             data = { error: "No data." };
           }
+          client.close();
+          resolve(data);
         });
     } finally {
-      await client.close();
-      resolve(data);
+      // moved client.close() and resolve(data) into the try block - https://stackoverflow.com/a/39535396
     }
   });
 
