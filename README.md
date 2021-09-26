@@ -12,6 +12,8 @@ Powered by:
 - [mongodb](https://github.com/mongodb/node-mongodb-native) for connecting to database hosted on MongoDB Atlas
 - [heroku](https://github.com/heroku/cli) for deployment through CLI
 - [dotenv](https://github.com/motdotla/dotenv) for locally managing environment variables
+- [puppeteer](https://github.com/puppeteer/puppeteer) for static/dynamic web scraping
+- [user-agents](https://github.com/intoli/user-agents) for generating user agent to override `puppeteer`'s default
 
 ## Stable versions
 
