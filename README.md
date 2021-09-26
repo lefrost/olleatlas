@@ -13,14 +13,16 @@ Powered by:
 - [heroku](https://github.com/heroku/cli) for deployment through CLI
 - [dotenv](https://github.com/motdotla/dotenv) for locally managing environment variables
 - [puppeteer](https://github.com/puppeteer/puppeteer) for static/dynamic web scraping
-- [user-agents](https://github.com/intoli/user-agents) for generating user agent to override `puppeteer`'s default; see [this SO post](https://stackoverflow.com/questions/69328929/loading-dynamic-webpage-with-puppeteer-works-on-localhost-but-not-heroku)
+- [user-agents](https://github.com/intoli/user-agents) for generating user agent to override `puppeteer`'s default; see [this SO answer](https://stackoverflow.com/a/69333432/8919391)
 
 ## Stable versions
 
 - node.js: `16.4.2`
 - dotenv: `^10.0.0`
 - express: `^4.17.1`
-- mongodb: `^3.6.10` (dependency with version `4.0.0` or higher breaks the code!)
+- mongodb: `^3.6.10` (dependency with version `4.0.0` or higher breaks the code, yikes)
+- puppeteer: `^10.4.0`
+- user-agents: `^1.0.786`
 
 ## Setup
 
