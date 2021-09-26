@@ -47,6 +47,11 @@ Following deployments, simply:
 git push heroku main
 ```
 
+## Notes
+
+- Add a `.env` file in the root directory. Inside, add `DB_URI = your-mongo-db-uri`.
+- Within the Heroku dashboard, add your `DB_URI` as a config var, and add [this Puppeteer buildback](https://github.com/jontewks/puppeteer-heroku-buildpack) to your buildpacks.
+
 ---
 
 🍉 Last revised on July 2021 🍉
