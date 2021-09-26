@@ -13,7 +13,7 @@ Powered by:
 - [heroku](https://github.com/heroku/cli) for deployment through CLI
 - [dotenv](https://github.com/motdotla/dotenv) for locally managing environment variables
 - [puppeteer](https://github.com/puppeteer/puppeteer) for static/dynamic web scraping
-- [user-agents](https://github.com/intoli/user-agents) for generating user agent to override `puppeteer`'s default
+- [user-agents](https://github.com/intoli/user-agents) for generating user agent to override `puppeteer`'s default; see [this SO post](https://stackoverflow.com/questions/69328929/loading-dynamic-webpage-with-puppeteer-works-on-localhost-but-not-heroku)
 
 ## Stable versions
 
@@ -46,8 +46,6 @@ Following deployments, simply:
 ```bash
 git push heroku main
 ```
-
-Note: Anytime when deploying with Heroku CLI, commit main branch but don't push before deploying onto Heroku.
 
 ---
 
