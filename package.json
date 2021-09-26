@@ -19,7 +19,9 @@
   "dependencies": {
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "mongodb": "^3.6.10"
+    "mongodb": "^3.6.10",
+    "puppeteer": "^10.4.0",
+    "user-agents": "^1.0.786"
   },
   "engines": {
     "node": "16.4.2"

@@ -4,10 +4,18 @@ const app = express();
 const { MongoClient } = require("mongodb");
 const uri = process.env.DB_URI;
 
+const puppeteer = require("puppeteer");
+var userAgent = require("user-agents");
+let browser;
+
 let port = process.env.PORT || 3000;
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Up on http://localhost:${port}`);
+
+  browser = await puppeteer.launch({
+    args: ["--no-sandbox"],
+  });
 });
 
 app.use(function (request, response, next) {
@@ -23,6 +31,22 @@ app.use(function (request, response, next) {
 
 app.get("/", (req, res) => {
   res.send("Olleatlas Sample API");
+});
+
+app.get("/scrape", async (req, res) => {
+  let url = req.query.url;
+  let page = await browser.newPage();
+  try {
+    await page.setUserAgent(userAgent.toString());
+    await page.goto(url, {
+      waitUntil: "networkidle2",
+    });
+    res.send({ data: await page.content() });
+  } catch (e) {
+    res.send({ data: null });
+  } finally {
+    await page.close();
+  }
 });
 
 app.get("/users/:id", (req, res) => {
