@@ -39,7 +39,7 @@ app.get("/scrape", async (req, res) => {
   try {
     await page.setUserAgent(userAgent.toString());
     await page.goto(url, {
-      waitUntil: "networkidle2",
+      waitUntil: "networkidle0",
     });
     res.send({ data: await page.content() });
   } catch (e) {
