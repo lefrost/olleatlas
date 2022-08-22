@@ -1,218 +1,169 @@
+// config
+
 require("dotenv").config();
 const express = require("express");
 const app = express();
 const { MongoClient } = require("mongodb");
+const { Client, GatewayIntentBits, IntentsBitField } = require("discord.js");
+const axios = require("axios").default;
 const uri = process.env.DB_URI;
 
-const puppeteer = require("puppeteer");
-var userAgent = require("user-agents");
-let browser;
+// let api = require(`./utils/api`);
+let dome = require(`./utils/dome`);
+let mongo = require(`./utils/mongo`);
+
+let _item = require(`./controllers/sample_item`);
+let _vote = require(`./controllers/sample_vote`);
 
 let port = process.env.PORT || 3000;
 
 app.listen(port, async () => {
   console.log(`Up on http://localhost:${port}`);
-
-  browser = await puppeteer.launch({
-    args: ["--no-sandbox"],
-  });
 });
 
-app.use(function (request, response, next) {
-  response.header("Access-Control-Allow-Origin", "*");
-  response.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+app.set(`view engine`, `pug`);
+
+app.use(express.json({ limit: "50mb", extended: true }));
+
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
   );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", true);
   next();
 });
 
-/* --- Routes --- */
+// routes
 
 app.get("/", (req, res) => {
   res.send("Olleatlas Sample API");
 });
 
-app.get("/scrape", async (req, res) => {
-  let url = req.query.url;
-  let page = await browser.newPage();
+// scrape
+
+// app.get("/scrape", async (req, res) => {
+//   let url = req.query.url;
+//   let page = await browser.newPage();
+//   try {
+//     await page.setItemAgent(itemAgent.toString());
+//     await page.goto(url, {
+//       waitUntil: "networkidle0",
+//     });
+//     res.send({ data: await page.content() });
+//   } catch (e) {
+//     res.send({ data: null });
+//   } finally {
+//     await page.close();
+//   }
+// });
+
+// api
+
+app.get(`/items`, async (req, res) => {
+  res.send(
+    await _item.getItems(
+      {
+        start_id: req.query.start_id,
+      },
+      {
+        sorters: req.query.sorters ? req.query.sorters.split(`,`) : [`id`],
+        sort_direction: req.query.sort_direction || `ascending`,
+      }
+    )
+  );
+});
+
+app.get(`/item/:id`, async (req, res) => {
+  res.send(await _item.getItem(req.params.id));
+});
+
+app.post(`/add/item`, async (req, res) => {
   try {
-    await page.setUserAgent(userAgent.toString());
-    await page.goto(url, {
-      waitUntil: "networkidle0",
-    });
-    res.send({ data: await page.content() });
+    res.send(await _item.addItem(req.body));
   } catch (e) {
-    res.send({ data: null });
-  } finally {
-    await page.close();
+    console.log(e);
+    res.send(503);
   }
 });
 
-app.get("/users/:id", (req, res) => {
-  let id = cleanStr(req.params.id);
-  getUser(id).then((data) => {
-    res.send(data);
-  });
+app.post(`/edit/item`, async (req, res) => {
+  try {
+    res.send(await _item.editItem(req.body));
+  } catch (e) {
+    console.log(e);
+    res.send(503);
+  }
 });
 
-/* --- API: GET --- */
+app.post(`/delete/item`, async (req, res) => {
+  try {
+    res.send(await _item.deleteItem(req.body));
+  } catch (e) {
+    console.log(e);
+    res.send(503);
+  }
+});
 
-function get(collectionName, params, options) {
-  params = params ? params : {};
-  options = options ? options : {};
-  let itemsRetrieved = new Promise(async (resolve, reject) => {
-    let client = new MongoClient(uri);
-    let data;
-
-    try {
-      await client.connect();
-      await client
-        .db("olleatlas")
-        .collection(collectionName)
-        .find(params, { collation: { locale: "en", strength: 2 } }) // Case-insensitive MongoDB query - https://stackoverflow.com/a/40914924
-        .toArray(async function (err, result) {
-          if (!isEmpty(result)) {
-            if (options.single) {
-              data = result[0];
-              delete data._id; // MongoDB automatically adds an `_id` prop to its objects; don't show that at the endpoint
-            } else {
-              data = result;
-              data.forEach((d) => delete d._id); // MongoDB automatically adds an `_id` prop to its objects; don't show that at the endpoint
-            }
-          } else {
-            data = { error: "No data." };
-          }
-          client.close();
-          resolve(data);
-        });
-    } finally {
-      // moved client.close() and resolve(data) into the try block - https://stackoverflow.com/a/39535396
-    }
-  });
-
-  return itemsRetrieved;
-}
-
-function getUser(id) {
-  return get(
-    "users",
-    {
-      id: id,
-    },
-    {
-      single: true,
-    }
+app.get("/votes", async (req, res) => {
+  res.send(
+    await _vote.getVotes(
+      {
+        start_id: req.query.start_id,
+        item_id: req.query.item_id,
+      },
+      {
+        sorters: req.query.sorters ? req.query.sorters.split(`,`) : [`id`],
+        sort_direction: req.query.sort_direction || `ascending`,
+      }
+    )
   );
-}
+});
 
-/* --- API: Add --- */
+app.post(`/add/vote`, async (req, res) => {
+  try {
+    res.send(await _vote.addVote(req.body));
+  } catch (e) {
+    console.log(e);
+    res.send(503);
+  }
+});
+app.post(`/pull/vote`, async (req, res) => {
+  try {
+    res.send(await _vote.pullVote(req.body));
+  } catch (e) {
+    console.log(e);
+    res.send(503);
+  }
+});
 
-// app.get("/add/user/:params", (req, res) => {
-//   let params = cleanStr(req.params.params);
-//   addUser(params).then((resCode) => {
-//     res.send(resCode);
-//   });
+// discord bot
+
+// let DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+
+// const discord_intents = new IntentsBitField();
+// discord_intents.add(
+//   IntentsBitField.Flags.Guilds,
+//   IntentsBitField.Flags.GuildMembers
+// );
+
+// const discord_bot = new Client({
+//   intents: discord_intents,
 // });
 
-app.post("/add/user/:params", (req, res) => {
-  let params = cleanStr(req.params.params);
-  addUser(params).then((resCode) => {
-    res.send(resCode);
-  });
-});
+// discord_bot.login(DISCORD_BOT_TOKEN);
 
-function addUser(params) {
-  let userAdded = add("users", {
-    ...JSON.parse(params),
-    codes: [],
-  });
-  return userAdded;
-}
-
-function add(collectionName, obj) {
-  obj = obj ? obj : {};
-  let itemAdded = new Promise(async (resolve, reject) => {
-    let client = new MongoClient(uri);
-
-    try {
-      await client.connect();
-      await client.db("olleatlas").collection(collectionName).insertOne(obj);
-    } finally {
-      await client.close();
-      resolve(201);
-    }
-  });
-
-  return itemAdded;
-}
-
-/* --- API: Update --- */
-
-// app.get("/update/user/:id/:params", (req, res) => {
-//   let id = cleanStr(req.params.id);
-//   let params = cleanStr(req.params.params);
-//   updateUser(id, params).then((resCode) => {
-//     res.send(resCode);
-//   });
+// discord_bot.once(`ready`, async () => {
+//   console.log(`Discord bot ready!`);
+//   refresh();
 // });
 
-app.post("/update/user/:id/:params", (req, res) => {
-  let id = cleanStr(req.params.id);
-  let params = cleanStr(req.params.params);
-  updateUser(id, params).then((resCode) => {
-    res.send(resCode);
-  });
-});
-
-function updateUser(id, params) {
-  let userUpdated = update(
-    "users",
-    {
-      id: id,
-    },
-    JSON.parse(params)
-  );
-
-  return userUpdated;
-}
-
-function update(collectionName, idObj, setObj) {
-  idObj = idObj ? idObj : {};
-  setObj = setObj ? setObj : {};
-  let itemUpdated = new Promise(async (resolve, reject) => {
-    let client = MongoClient(uri);
-
-    try {
-      await client.connect();
-      await client.db("olleatlas").collection(collectionName).updateOne(idObj, {
-        $set: setObj,
-      });
-    } finally {
-      await client.close();
-      resolve(200);
-    }
-  });
-
-  return itemUpdated;
-}
-
-/* --- Utils --- */
-
-function cleanStr(str) {
-  return str.toString().trim();
-}
-
-function isEmpty(obj) {
-  for (let i in obj) return false;
-  return true;
-}
-
-function paramsToObj(params) {
-  return Object.fromEntries(
-    params
-      .replace(/%20/g, " ")
-      .split("&")
-      .map((s) => s.split("="))
-  );
-}
+// async function refresh() {
+//   await utils.wait(60);
+//   refresh();
+// }
