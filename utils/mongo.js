@@ -6,8 +6,8 @@ let dome = require("./dome");
 
 module.exports = {
   getAll: async (collection_name, params, options) => {
-    if (options.sorter_strings === undefined) {
-      options.sorter_strings = [`id`];
+    if (options.sorters === undefined) {
+      options.sorters = [`id`];
     }
 
     if (options.sort_direction === undefined) {
@@ -21,10 +21,17 @@ module.exports = {
     let last_id;
 
     while (items.length < item_count) {
+      let loop_params = {};
+
+      if (last_id) {
+        loop_params[options.sorters[0]] = { $gt: last_id };
+      }
+
       let items_from_database = await module.exports.getMany(
         collection_name,
         {
           ...params,
+          ...loop_params,
         },
         {
           sorters: options.sorters ? options.sorters : [`id`],
@@ -35,7 +42,8 @@ module.exports = {
 
       items.push(...items_from_database);
 
-      last_id = items[items.length - 1].id;
+      // last_id = items[items.length - 1].id;
+      last_id = items[items.length - 1][options.sorters[0]];
     }
 
     return items;
@@ -43,8 +51,8 @@ module.exports = {
 
   getMany: (collectionName, params, options) => {
     return new Promise(async (resolve, reject) => {
-      if (options.sorter_strings === undefined) {
-        options.sorter_strings = [`id`];
+      if (options.sorters === undefined) {
+        options.sorters = [`id`];
       }
 
       if (options.sort_direction === undefined) {
@@ -61,7 +69,7 @@ module.exports = {
       await client.connect({ useUnifiedTopology: true });
 
       let sorters = {};
-      for (let sorter_string of options.sorter_strings) {
+      for (let sorter_string of options.sorters) {
         sorters[sorter_string] =
           options.sort_direction === `ascending` ? 1 : -1;
       }

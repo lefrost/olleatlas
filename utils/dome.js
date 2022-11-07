@@ -1,7 +1,6 @@
 // var ffmpeg = require("fluent-ffmpeg");
 // const ffprobeInstaller = require("@ffprobe-installer//ffprobe");
 // ffmpeg.setFfprobePath(ffprobeInstaller.path);
-
 var crypto = require("crypto");
 var moment = require(`moment`);
 // var _ = require(`lodash`);
@@ -25,7 +24,8 @@ module.exports = {
     return moment.unix(timestamp).format(format);
   },
   getTimestampDiff: (start, end, format) => {
-    let diff = moment.duration(start.diff(end));
+    let diff = moment.duration(moment.unix(end).diff(moment.unix(start)));
+    // let diff = moment.duration(start.diff(end));
 
     switch (format) {
       case `days`:
@@ -118,14 +118,6 @@ module.exports = {
       url.indexOf(`.`, url.indexOf(searchFor))
     );
   },
-  // getVideoDetails: (videoUrl) => {
-  //   let done = new Promise((resolve, reject) => {
-  //     ffmpeg.ffprobe(videoUrl, function (err, metadata) {
-  //       resolve(metadata ? metadata : null);
-  //     });
-  //   });
-  //   return done;
-  // },
   cleanObj: (obj) => {
     // https://stackoverflow.com/a/38340730/8919391
     return Object.fromEntries(
@@ -151,5 +143,20 @@ module.exports = {
 
   unurlifyString: (str) => {
     return str.replaceAll(`[ampersand]`, `&`);
+  },
+
+  normaliseNum: (num) => {
+    if (num.toString().includes(`e`)) {
+      return Number(num.toLocaleString("fullwide", { useGrouping: false }));
+    } else {
+      return num;
+    }
+  },
+
+  removeDuplicateArrayObjects: (arr, key) => {
+    // https://stackoverflow.com/a/56757215/8919391
+    return arr.filter(
+      (v, i, a) => a.findIndex((v2) => v2[key] === v[key]) === i
+    );
   },
 };
