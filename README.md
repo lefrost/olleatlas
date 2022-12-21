@@ -1,11 +1,7 @@
-### 🍃 「olleatlas」 is Léfrost's Node.js API boilerplate.
+#### 🍃 olleatlas
 
-- `npm i` to install packages.
-- `node index.js` to run.
-- `.env` file required. Variables: `API_TYPE = prod/dev`, `DB_URI = mongodb+srv:...`, `DISCORD_BOT_TOKEN = ABC123...`.
-- [package.json](https://github.com/lefrst/olleatlas/blob/main/package.json) shows stable package versions.
-- [Atlas](https://www.mongodb.com/atlas) database.
-- [Heroku](https://www.heroku.com/home) deployment.
-- [Discord.js](https://discordjs.guide) integration.
-- Deploy to Heroku: `heroku login`, `heroku create app-name`, `heroku git:remote -a app-name`, `git push heroku main`. Push to Github first.
-- [Buildpack](https://github.com/jontewks/puppeteer-heroku-buildpack) to make Puppeteer package work on Heroku.
+- [express](https://expressjs.com) api boilerplate by lé. preview on [heroku](https://olleatlas.herokuapp.com).
+- `npm i`, `node index.js` to run. default port is 3001.
+- deploy: push to github, `heroku login`, `heroku create app-name`, `heroku git:remote -a app-name`, `git push heroku main`.
+- [atlas](atlas) database, [discord.js](https://discordjs.guide) integration.
+- [buildpack](https://github.com/jontewks/puppeteer-heroku-buildpack) for puppeteer support on heroku. [alternative solution](https://stackoverflow.com/a/74858297/8919391) for smaller slug size.
